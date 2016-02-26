@@ -22,7 +22,8 @@ library(rgl)
 Perf<-read.csv('Cypr_Perf.csv')
 Morph<-read.csv('Cypr_Morpho.csv')
 
-##Subset morphological data
+##Subset only numerical data
+Perf_Num<-Perf[,3:5]
 Ratios<- Morph[,4:9]
 LinearM<-Morph[,c(10:19)]
 
@@ -31,11 +32,24 @@ str(Ratios)
 str(LinearM)
 str(Perf)
 
+####Clean data
+
+#remove individual without performance data
+empty<-(which(Perf_Num$vmax=='0')) #list of sepecies without data
+
+#remove from each matrix
+Perf_Num<- Perf_Num[-empty,]
+Ratios<- Morph[-empty,4:9]
+LinearM<-Morph[-empty,c(10:19)]
+
+##Tables with final number of individuals to extract the names
+Perf_Sp<-Perf[-empty,]
+Morph_Sp<-Morph[-empty,]
+
 ## Pca for the performance, select only the numeric columns
-Perf_Num<-Perf[,3:5]
-Perfpca<-prcomp(na.omit(Perf_Num))
-Ratiopca <-prcomp(na.omit(Ratios))
-Linearpca <- prcomp(na.omit(LinearM))  
+Perfpca<-prcomp(Perf_Num)
+Ratiopca <-prcomp(Ratios)
+Linearpca <- prcomp(LinearM)
 
 summary(Perfpca)
 
@@ -56,13 +70,17 @@ ordiplot(Perfpca)
 
 #####Plot results of pca
 #change species names to numbers to visualize in a plot
-levels(Perf$species)<-c(1:19)
-ggbiplot(Perfpca, choices=1:2, groups = Perf$species, 
-         labels= Perf$species, scale=1, ellipse = F)
+levels(Perf_Sp$species)<-c(1:19)
+ggbiplot(Perfpca, choices=1:2, groups = Perf_Sp$species, 
+         labels= Perf_Sp$species, scale=1, ellipse = T)
 
-ggbiplot(Ratiopca, choices=1:2, groups = Perf$species, 
-         labels= Perf$species, scale=1, ellipse = T)
+levels(Morph_Sp$species)<-c(1:19)
+
+ggbiplot(Ratiopca, choices=1:2, groups = Morph_Sp$species, 
+         labels= Morph_Sp$species, scale=1, ellipse = T)
 
 ggbiplot(Linearpca, choices=1:2, groups = Perf$species, 
          labels= Perf$species, scale=1, ellipse = T)
+
+
 

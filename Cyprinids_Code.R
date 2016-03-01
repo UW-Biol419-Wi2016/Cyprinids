@@ -77,7 +77,6 @@ ggbiplot(Perfpca, choices=1:2, groups = Perf_Sp$species,
          legend.text=levels(Original_sp$species))
 
 levels(Morph_Sp$species)<-c(1:19)
-
 ggbiplot(Ratiopca, choices=1:2, groups = Morph_Sp$species, 
          labels= Morph_Sp$species, scale=1, ellipse = T)
 
@@ -143,5 +142,4 @@ for (i in 1:ncol(Perf_Num))
     plot(i~j, data = Perf_Num)
   }
 }
-
 

@@ -71,17 +71,32 @@ ordiplot(Perfpca)
 
 #####Plot results of pca
 #change species names to numbers to visualize in a plot
+
+library(ggplot2)
+
 levels(Perf_Sp$species)<-c(1:19)
-ggbiplot(Perfpca, choices=1:2, groups = Perf_Sp$species, 
+p1<-ggbiplot(Perfpca, choices=1:2, groups = Perf_Sp$species, 
          labels= Perf_Sp$species, scale=1, ellipse = T,
          legend.text=levels(Original_sp$species))
 
 levels(Morph_Sp$species)<-c(1:19)
-ggbiplot(Ratiopca, choices=1:2, groups = Morph_Sp$species, 
+p2<-ggbiplot(Ratiopca, choices=1:2, groups = Morph_Sp$species, 
          labels= Morph_Sp$species, scale=1, ellipse = T)
 
-ggbiplot(Linearpca, choices=1:2, groups = Morph_Sp$species, 
-         labels= Morph_Sp$species, scale=1, ellipse = T)
+p3<-ggbiplot(Linearpca, choices=1:2, groups = Morph_Sp$species, 
+         labels= Morph_Sp$species, scale=1, ellipse = T, col='black')+
+theme(panel.background = element_rect(fill = 'white'))
+
+##package to multiplot ggplot 2
+install.packages('gridExtra')
+library(gridExtra)
+# indicate number of rows and columns
+grid.arrange(p1, p2, p3, ncol=1)
+###element_blank() #draws nothing
+
+##maybe leyend
++geom_line(aes(color="Important line"))+
+  geom_point(aes(color="My points"))
 
 ##Correlation analysis
 
@@ -102,6 +117,9 @@ install.packages('corrplot')
 library(corrplot)
 
 # Pie plots for correlation test
+
+##plot the three correlation plots in a column
+par(mfrow=c(3,1))
 Perf_Ratios <- cor(Perf_Num, Ratios)
 corrplot(Perf_Ratios, method = "pie", tl.col = "black", 
          tl.srt = 45) 
@@ -143,3 +161,4 @@ for (i in 1:ncol(Perf_Num))
   }
 }
 
+####Plots to improve, 3 pca, 3 corr, 3 clust

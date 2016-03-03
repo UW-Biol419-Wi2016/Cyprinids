@@ -26,6 +26,7 @@ Morph<-read.csv('Cypr_Morpho.csv')
 Perf_Num<-Perf[,3:5]
 Ratios<- Morph[,4:9]
 LinearM<-Morph[,c(10:19)]
+Linear2<-Morph[,c(10, 13:19)] 
 
 ##Examine data, make sure species is a factor and the rest numeric
 str(Ratios)
@@ -41,6 +42,7 @@ empty<-(which(Perf_Num$vmax=='0')) #list of sepecies without data
 Perf_Num<- Perf_Num[-empty,]
 Ratios<- Morph[-empty,4:9]
 LinearM<-Morph[-empty,c(10:19)]
+Linear2<-Morph[-empty,c(10, 13:19)] 
 
 ##Tables with final number of individuals to extract the names
 Original_sp<-Perf[-empty,]
@@ -51,16 +53,47 @@ Morph_Sp<-Morph[-empty,]
 Perfpca<-prcomp(Perf_Num)
 Ratiopca <-prcomp(Ratios)
 Linearpca <- prcomp(LinearM)
+Linear2pca<- prcomp(Linear2)
 
+##you can check the summary for each pca
 summary(Perfpca)
 
-#Calculate eigenvalues
-VarNum.eigenva<-Perfpca$sdev^2#calculate variance in each PCA
-VarNum.eigenva
-pca.eigenval(Perfpca)
+#Calculate eigenvalues for each PCA and Broken stick values
+#Round the numeric values to have two decimals
 
-#Broken Stick plot
-screeplot(Perfpca, bstick=TRUE) #eigen values definetly higher than brooken stick, explain the variance significativelly
+eigen1<-as.data.frame(round(pca.eigenval(Perfpca), 2))
+eigen2<-as.data.frame(round(pca.eigenval(Ratiopca), 2))
+eigen3<-as.data.frame(round(pca.eigenval(Linearpca), 2))
+eigen4<-as.data.frame(round(pca.eigenval(Linear2pca), 2))
+
+#export eigenvalues and variance tables
+write.csv(c(eigen1,eigen2,eigen3, eigen4), file = "PCAVar.csv")
+
+##What variables explain the most amount of variation
+#you can indicate the number of PCs that you want to see in the table by adding dim=n
+trait1<-pca.structure(Perfpca,Perf_Num)
+trait2<-pca.structure(Ratiopca,Ratios)
+trait3<-pca.structure(Linearpca,LinearM)
+trait4<-pca.structure(Linear2pca,Linear2)
+
+#export tables, thay can not be exported in the same file 
+#because do not have the same numebr of variables
+
+write.csv(trait1, file = "Perf_Trait_Explain_Var.csv")
+write.csv(trait2, file = "Ratio_Trait_Explain_Var.csv")
+write.csv(trait3, file = "Linear_Trait_Explain_Var.csv")
+write.csv(trait4, file = "Linear2_Trait_Explain_Var.csv")
+
+#Broken Stick plot for each pca
+#eigen values definetly higher than brooken stick, explain the variance significativelly
+#export the figure as pdf
+
+pdf("Cyprinids_Brokenstick.pdf")
+par(mfrow=c(3,1))
+screeplot(Perfpca, bstick=TRUE, main = 'Performance') 
+screeplot(Ratiopca, bstick=TRUE, main = 'Body ratios') 
+screeplot(Linearpca, bstick=TRUE, main = 'Linear measurements') 
+dev.off()
 
 ##Regular Plot just to see how the data loos like
 biplot(Perfpca)
@@ -102,6 +135,7 @@ grid.arrange(p1, p2, p3, ncol=1)
 
 ####try one
 corr(Perf_Num, Ratios)
+cov(Perf_Num, Ratios)
 corr(Perf_Num, LinearM)
 corr(Ratios, LinearM)
 

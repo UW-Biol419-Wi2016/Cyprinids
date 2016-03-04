@@ -105,33 +105,50 @@ ordiplot(Perfpca)
 #####Plot results of pca
 #change species names to numbers to visualize in a plot
 
+#to include legend
+  #theme(legend.position = "right")+
+  #scale_color_discrete(name="species")+
+#to remove the legend
+  # scale_colour_discrete(guide = FALSE) 
 library(ggplot2)
 
 levels(Perf_Sp$species)<-c(1:19)
-p1<-ggbiplot(Perfpca, choices=1:2, groups = Perf_Sp$species, 
-         labels= Perf_Sp$species, scale=1, ellipse = T,
-         legend.text=levels(Original_sp$species))
+p1<- ggbiplot(Perfpca, choices=1:2, groups = Original_sp$species, 
+         labels= Perf_Sp$species, scale=1, ellipse = T)+
+    scale_colour_discrete(guide = FALSE)+ 
+        ggtitle('Performance')
 
 levels(Morph_Sp$species)<-c(1:19)
-p2<-ggbiplot(Ratiopca, choices=1:2, groups = Morph_Sp$species, 
-         labels= Morph_Sp$species, scale=1, ellipse = T)
+p2<-ggbiplot(Ratiopca, choices=1:2, groups = Original_sp$species, 
+         labels= Morph_Sp$species, scale=1, ellipse = T)+
+          scale_colour_discrete(guide = FALSE)+
+          ggtitle('Body Ratios')
 
 p3<-ggbiplot(Linearpca, choices=1:2, groups = Morph_Sp$species, 
          labels= Morph_Sp$species, scale=1, ellipse = T, col='black')+
-theme(panel.background = element_rect(fill = 'white'))
+          scale_colour_discrete(guide = FALSE)+
+          ggtitle('Linear Measurements')
+
+p4<-ggbiplot(Linear2pca, choices=1:2, groups = Morph_Sp$species, 
+             labels= Morph_Sp$species, scale=1, ellipse = T, col='black')+
+              scale_colour_discrete(guide = FALSE)+
+              ggtitle('Linear Measurements 2')
+
+#change background to white
+#theme(panel.background = element_rect(fill = 'white'))
 
 ##package to multiplot ggplot 2
 install.packages('gridExtra')
 library(gridExtra)
+
 # indicate number of rows and columns
-grid.arrange(p1, p2, p3, ncol=1)
+grid.arrange(p1, p2, p3,p4, ncol=2)
+
 ###element_blank() #draws nothing
 
-##maybe leyend
-+geom_line(aes(color="Important line"))+
-  geom_point(aes(color="My points"))
 
-##Correlation analysis
+#######Correlation analysis
+###########################
 
 ####try one
 corr(Perf_Num, Ratios)
@@ -146,28 +163,36 @@ cor(Perf_Num, Ratios, use = "everything",
 
 #####try three
 
+
+##correlation analyses
+Perf_Ratios <- cor(Perf_Num, Ratios)
+Ratios_LinearM <- cor(Ratios, LinearM)
+Perf_LinearM <- cor(Perf_Num, LinearM)
+Perf_Linear2 <- cor(Perf_Num, Linear2)
+
+##correlation plots
+# Pie plots for correlation test
+
 #correlation plot package
 install.packages('corrplot')
 library(corrplot)
 
-# Pie plots for correlation test
-
 ##plot the three correlation plots in a column
-par(mfrow=c(3,1))
-Perf_Ratios <- cor(Perf_Num, Ratios)
+par(mfrow=c(2,2), mar=c(0,0,0,0), oma=c(1,1,1,1))
 corrplot(Perf_Ratios, method = "pie", tl.col = "black", 
-         tl.srt = 45) 
-#other methods "square", "ellipse", "number","shade", color, pie
-
-Perf_LinearM <- cor(Perf_Num, LinearM)
+         tl.srt = 45, title = "Performance/Body Ratios") 
+corrplot(Perf_Linear2, method = "pie", tl.col = "black", 
+         tl.srt = 45, title = "Performance/LinearM 2")   
 corrplot(Perf_LinearM, method = "pie", tl.col = "black", 
-         tl.srt = 45)
-
-colCypr<- c('#d8b365', '#5ab4ac')
-Ratios_LinearM <- cor(Ratios, LinearM)
+         tl.srt = 45, title = "Performance/LinearM")
 corrplot(Ratios_LinearM, method = "pie", tl.col = "black", 
-         tl.srt = 45, col = colCypr, rect.col = F, tl.cex = 1)
-           
+         tl.srt = 45, title = "Ratios/LinearM")
+
+#other methods "square", "ellipse", "number","shade", color, pie
+##to change color
+#colCypr<- c('#d8b365', '#5ab4ac')#create a vector
+#add col = colCypr
+
 
 ####linear regressions 
 cor(Perf_Num)

@@ -142,7 +142,7 @@ install.packages('gridExtra')
 library(gridExtra)
 
 # indicate number of rows and columns
-grid.arrange(p1, p2, p3,p4, ncol=2)
+grid.arrange(p1, p4)#, p3, p2, ncol=2)
 
 ###element_blank() #draws nothing
 
@@ -163,11 +163,29 @@ cor(Perf_Num, Ratios, use = "everything",
 
 #####try three
 
+### package to keep name rows as columns
+install.packages('data.table')
+library(data.table)
+#function setDT(data, keep.rownames = TRUE)[]
+#function to melt tables using the same variable
+require(reshape2)
 
 ##correlation analyses
 Perf_Ratios <- cor(Perf_Num, Ratios)
-Ratios_LinearM <- cor(Ratios, LinearM)
+              setDT(Perf_Ratios, keep.rownames = TRUE)[]
 Perf_LinearM <- cor(Perf_Num, LinearM)
+              setDT(Perf_LinearM, keep.rownames = TRUE)[]
+
+
+testtt <- merge(Perf_Ratios,Perf_LinearM,by="rn")
+      
+corrplot(testtt, use,names=T, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Performance/Body Ratios", 
+         tl.cex=1, mar=c(0,0,1,0), cl.cex=1, diag = FALSE)
+######
+
+Ratios_LinearM <- cor(Ratios, LinearM)
+
 Perf_Linear2 <- cor(Perf_Num, Linear2)
 
 ##correlation plots
@@ -178,16 +196,19 @@ install.packages('corrplot')
 library(corrplot)
 
 ##plot the three correlation plots in a column
-par(mfrow=c(2,2), mar=c(0,0,0,0), oma=c(1,1,1,1))
-corrplot(Perf_Ratios, method = "pie", tl.col = "black", 
-         tl.srt = 45, title = "Performance/Body Ratios") 
-corrplot(Perf_Linear2, method = "pie", tl.col = "black", 
-         tl.srt = 45, title = "Performance/LinearM 2")   
-corrplot(Perf_LinearM, method = "pie", tl.col = "black", 
-         tl.srt = 45, title = "Performance/LinearM")
-corrplot(Ratios_LinearM, method = "pie", tl.col = "black", 
-         tl.srt = 45, title = "Ratios/LinearM")
 
+par(mfrow=c(2,2))
+corrplot(Perf_Ratios, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Performance/Body Ratios", 
+         tl.cex=1, mar=c(0,0,1,0), cl.cex=1, diag = FALSE)
+corrplot(Perf_Linear2, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Performance/LinearM 2", 
+         mar=c(0,0,1,0))   
+corrplot(Perf_LinearM, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Performance/LinearM", mar=c(0,0,1,0))
+corrplot(Ratios_LinearM, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Ratios/LinearM", mar=c(0,0,1,0))
+dev.off()
 #other methods "square", "ellipse", "number","shade", color, pie
 ##to change color
 #colCypr<- c('#d8b365', '#5ab4ac')#create a vector

@@ -1,5 +1,5 @@
 
-#table to be use
+############table to be use
 Perf<-read.csv('Cypr_Perf.csv')
 #Table with numbers instead species
 
@@ -9,9 +9,9 @@ Perf_Sp<-Perf[-empty,] #remove missing data
 levels(Perf_Sp$species)<-c(1:19)#change species for numbers
 #base dataset
 Perf_Sp
-#change levels for morphology
-Morph_Sp<-Morph[-empty,]
 
+############change levels for morphology
+levels(Morph_Sp$species)<-c(1:19)
 Full_Morph1<-rbind(Morph_Sp[grep('^3$',Morph_Sp$species),c(3,10, 13:19)],
                    Morph_Sp[grep('^17$',Morph_Sp$species),c(3,10,13:19)],
                    Morph_Sp[grep('^5$',Morph_Sp$species),c(3,10,13:19)])
@@ -35,50 +35,91 @@ SUBset1a<-cbind(names1,michab1, size1, underfin1,headW, SUBset1[,3:5]) #cbind na
                 
 
 ##PCA Analysis
-PerfpcaSUB1<-prcomp(SUBset1a[,8:10])
+PerfpcaSUB1<-prcomp(SUBset1a[,6:8])
 
 #traits explaining variation
 
-MorphpcaSUB1<-prcomp(Full_Morph1[,2:9])
-traitperSUB1<-pca.structure(PerfpcaSUB1, SUBset1a[,8:10])
+traitperSUB1<-pca.structure(PerfpcaSUB1, SUBset1a[,6:8])
 
 ########prettyplot try one
 
 pSub1<- ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
                  labels.size=10, ellipse = TRUE)+
-  geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$total.L))+ #add points according to total lenght
+  geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$size1))+ #add points according to total lenght
   scale_size_continuous(range = c(0,9))+ #change scale of the points
-  theme(panel.background = element_rect(fill = 'white'))
+  scale_colour_manual(values=c("#a6611a", "#dfc27d", '#018571'))+
+  theme(panel.background = element_rect(fill = 'white'))+
+  theme(axis.title.y = element_text(size = rel(1.5)))+
+  theme(axis.title.x = element_text(size = rel(1.5)))+
+  theme(axis.text.x	= element_text(size=14))+
+  theme(axis.text.y	= element_text(size=14))+
+  theme(legend.text = element_text(size = 13))+
+  theme(axis.line.x = element_line(size = 0.5, colour = "grey", linetype = 1))+
+  theme(axis.line.y = element_line(size = 0.5, colour = "grey", linetype = 1))
 
 under<-ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
            labels.size=10, ellipse = TRUE)+
-            geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$underfinW))+ #add points according to total lenght
+            geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$underfin1))+ #add points according to total lenght
             scale_size_continuous(range = c(0,9))+ #change scale of the points
-            theme(panel.background = element_rect(fill = 'white'))
+            scale_colour_manual(values=c("#a6611a", "#dfc27d", '#018571'))+
+            theme(panel.background = element_rect(fill = 'white'))+
+  theme(axis.title.y = element_text(size = rel(1.5)))+
+  theme(axis.title.x = element_text(size = rel(1.5)))+
+  theme(axis.text.x	= element_text(size=14))+
+  theme(axis.text.y	= element_text(size=14))+
+  theme(legend.text = element_text(size = 13))+
+  theme(axis.line.x = element_line(size = 0.5, colour = "grey", linetype = 1))+
+  theme(axis.line.y = element_line(size = 0.5, colour = "grey", linetype = 1))
 
 head<-ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
                 labels.size=10, ellipse = TRUE)+
-  geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$headW))+ #add points according to total lenght
+  geom_point(aes(colour=SUBset1a$names1,size = SUBset1a$headW))+ #add points according to total lenght shape=SUBset1a$michab1,
   scale_size_continuous(range = c(0,9))+ #change scale of the points
-  theme(panel.background = element_rect(fill = 'white'))
+  scale_colour_manual(values=c("#a6611a", "#dfc27d", '#018571'))+
+  theme(panel.background = element_rect(fill = 'white'))+
+  theme(axis.title.y = element_text(size = rel(1.5)))+
+  theme(axis.title.x = element_text(size = rel(1.5)))+
+  theme(axis.text.x	= element_text(size=14))+
+  theme(axis.text.y	= element_text(size=14))+
+  theme(legend.text = element_text(size = 13))+
+  theme(axis.line.x = element_line(size = 0.5, colour = "grey", linetype = 1))+
+  theme(axis.line.y = element_line(size = 0.5, colour = "grey", linetype = 1))
+
+
 
 ####PCA for subset 1  morphology
+
+MorphpcaSUB1<-prcomp(Full_Morph1[,2:9])
+traitmorSUB1<-pca.structure(MorphpcaSUB1,Full_Morph1[,2:9])
+
 MorphologyPCA<- ggbiplot(MorphpcaSUB1,choices=1:2, obs.scale = 1, groups = Full_Morph1$species,
                  labels.size=10, ellipse = TRUE, var.axes=T)+
-  theme(panel.background = element_rect(fill = 'white'))
+              scale_colour_manual(values=c("#a6611a", "#dfc27d", '#018571'))+
+              theme(panel.background = element_rect(fill = 'white'))+
+  theme(axis.title.y = element_text(size = rel(1)))+
+  theme(axis.title.x = element_text(size = rel(1)))+
+  theme(axis.text.x	= element_text(size=8))+
+  theme(axis.text.y	= element_text(size=8))+
+  theme(legend.text = element_text(size = 13))+
+  theme(axis.line.x = element_line(size = 0.5, colour = "grey", linetype = 1))+
+  theme(axis.line.y = element_line(size = 0.5, colour = "grey", linetype = 1))+
+  theme(legend.position="none")
 
-traitmorSUB1<-pca.structure(MorphpcaSUB1,Full_Morph1[,2:9])
+
 
 ##correlation analysis subset1
 corrMPSUB1<-cor(SUBset1a[,8:10],Full_Morph1[,2:9])
 
 corrplot(corrMPSUB1, method = "square", tl.col = "black", 
          tl.srt = 45, title = "Performance/LinearM", 
-         tl.cex=1, mar=c(0,0,1,0), cl.cex=1, diag = FALSE)
+         tl.cex=1, mar=c(0,0,1,0), cl.cex=1, diag = FALSE)#, cl.pos='n')
 
 
-grid.arrange(MorphologyPCA,pSub1, under, head, ncol=1)
+grid.arrange(MorphologyPCA,pSub1, under, head, ncol=2)
 
+grid.arrange(MorphologyPCA,head, 
+             totalL
+             ncol=3)
 
 #######
 

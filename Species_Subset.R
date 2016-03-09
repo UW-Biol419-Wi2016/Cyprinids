@@ -12,10 +12,9 @@ Perf_Sp
 #change levels for morphology
 Morph_Sp<-Morph[-empty,]
 
-Fish_size1<-rbind(Morph_Sp[grep('^3$',Perf_Sp$species),c(3,10)],
-                 Morph_Sp[grep('^17$',Perf_Sp$species),c(3,10)],
-                 Morph_Sp[grep('^5$',Perf_Sp$species),c(3,10)])
-
+Full_Morph1<-rbind(Morph_Sp[grep('^3$',Morph_Sp$species),c(3,10, 13:19)],
+                   Morph_Sp[grep('^17$',Morph_Sp$species),c(3,10,13:19)],
+                   Morph_Sp[grep('^5$',Morph_Sp$species),c(3,10,13:19)])
 
 # Select the number of rows of the desired species
 #grep the exact value that you want '^i$'
@@ -25,71 +24,60 @@ Fish_size1<-rbind(Morph_Sp[grep('^3$',Perf_Sp$species),c(3,10)],
 SUBset1<-rbind(Perf_Sp[grep('^3$',Perf_Sp$species),],
         Perf_Sp[grep('^17$',Perf_Sp$species),],
         Perf_Sp[grep('^5$',Perf_Sp$species),])
-names1<-as.factor(c(rep(3,7), rep(17,6), rep(5,6))) #assign species as factor
+
+names1<-as.factor(c(rep('Chinese bitterling',7), rep('Small fat minnow',6), rep('Chinese false gudgeon',6))) #assign species as factor
 michab1<-as.factor(c(rep('still', 19)))
-size1<-Fish_size1
+size1<-Full_Morph1[,2]
+underfin1<-Full_Morph1[,4]
+headW<-Full_Morph1[,5]
 
-SUBset1a<-cbind(names1,michab1, size1,SUBset1[,3:5]) #cbind names and performance
+SUBset1a<-cbind(names1,michab1, size1, underfin1,headW, SUBset1[,3:5]) #cbind names and performance
                 
-#2. Different Morphology, different Microhabitat, same clade
-SUBset2<-rbind(Perf_Sp[grep('^1$',Perf_Sp$species),],
-              Perf_Sp[grep('^4$',Perf_Sp$species),],
-              Perf_Sp[grep('^6$',Perf_Sp$species),])
-names2<-as.factor(c(rep(1,8), rep(4,6), rep(6,7))) #assign species as factor
-SUBset2a<-cbind(names2, SUBset2[,3:5]) 
-
-
-#3. Same Morphology, different Microhabitat, same clade
-SUBset3<-rbind(Perf_Sp[grep('^7$',Perf_Sp$species),],
-              Perf_Sp[grep('^8$',Perf_Sp$species),])
-names3<-as.factor(c(rep('Common carp' ,8), rep('Crucian carp',8))) #assign species as factor
-SUBset3a<-cbind(names3, SUBset3[,3:5]) #cbind names and performance
-
-#4. Same Morphology, same Microhabitat, same clade
-SUBset4<-rbind(Perf_Sp[grep('^3$',Perf_Sp$species),],
-              Perf_Sp[grep('^14$',Perf_Sp$species),])
-names4<-as.factor(c(rep('Chinese bitterling',7), rep('Rose bitterling',6))) #assign species as factor
-SUBset4a<-cbind(names4, SUBset4[,3:5]) #cbind names and performance
-
 
 ##PCA Analysis
-PerfpcaSUB1<-prcomp(SUBset1a[,5:7])
-PerfpcaSUB2<-prcomp(SUBset2a[,2:4])
-PerfpcaSUB3<-prcomp(SUBset3a[,2:4])
-PerfpcaSUB4<-prcomp(SUBset4a[,2:4])
+PerfpcaSUB1<-prcomp(SUBset1a[,8:10])
 
-biplot(PerfpcaSUB1)
+#traits explaining variation
+
+MorphpcaSUB1<-prcomp(Full_Morph1[,2:9])
+traitperSUB1<-pca.structure(PerfpcaSUB1, SUBset1a[,8:10])
 
 ########prettyplot try one
-ggbiplot(wine.pca, obs.scale = 1, var.scale = 1, group=wine.class,
-         varname.size = 8, labels.size=10, 
-         ellipse = TRUE, circle = TRUE) +
-  scale_color_discrete(name = '') +  
-  geom_point(aes(colour=wine.class), size = 8) +
-  theme(legend.direction ='horizontal', 
-        legend.position = 'top')
-######
 
-pSub1<- 
-  ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
+pSub1<- ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
+                 labels.size=10, ellipse = TRUE)+
+  geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$total.L))+ #add points according to total lenght
+  scale_size_continuous(range = c(0,9))+ #change scale of the points
+  theme(panel.background = element_rect(fill = 'white'))
+
+under<-ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
            labels.size=10, ellipse = TRUE)+
-            geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$total.L))+ #add points according to total lenght
+            geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$underfinW))+ #add points according to total lenght
             scale_size_continuous(range = c(0,9))+ #change scale of the points
             theme(panel.background = element_rect(fill = 'white'))
 
+head<-ggbiplot(PerfpcaSUB1,choices=1:2, obs.scale = 1, groups = SUBset1a$names1,
+                labels.size=10, ellipse = TRUE)+
+  geom_point(aes(colour=SUBset1a$names1, size = SUBset1a$headW))+ #add points according to total lenght
+  scale_size_continuous(range = c(0,9))+ #change scale of the points
+  theme(panel.background = element_rect(fill = 'white'))
 
-##########
-pSub2<- ggbiplot(PerfpcaSUB2, choices=1:2, groups = SUBset2a$names2, 
-                 labels= SUBset2a$names2, scale=1, ellipse = T)+
-  ggtitle('Performance')
+####PCA for subset 1  morphology
+MorphologyPCA<- ggbiplot(MorphpcaSUB1,choices=1:2, obs.scale = 1, groups = Full_Morph1$species,
+                 labels.size=10, ellipse = TRUE, var.axes=T)+
+  theme(panel.background = element_rect(fill = 'white'))
 
-pSub3<- ggbiplot(PerfpcaSUB3, choices=1:2, groups = SUBset3a$names3, 
-                 labels= SUBset3a$names3, scale=1, ellipse = T)
+traitmorSUB1<-pca.structure(MorphpcaSUB1,Full_Morph1[,2:9])
 
-pSub4<- ggbiplot(PerfpcaSUB4, choices=1:2, groups = SUBset4a$names4, 
-                 labels= SUBset4a$names4, scale=1, ellipse = T)
+##correlation analysis subset1
+corrMPSUB1<-cor(SUBset1a[,8:10],Full_Morph1[,2:9])
 
-grid.arrange(pSub1,pSub2,pSub3,pSub4, ncol=2)
+corrplot(corrMPSUB1, method = "square", tl.col = "black", 
+         tl.srt = 45, title = "Performance/LinearM", 
+         tl.cex=1, mar=c(0,0,1,0), cl.cex=1, diag = FALSE)
+
+
+grid.arrange(MorphologyPCA,pSub1, under, head, ncol=1)
 
 
 #######
